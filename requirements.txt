@@ -4,3 +4,4 @@ statsmodels
 sqlalchemy
 psycopg2-binary
 jupyter
+matplotlib
