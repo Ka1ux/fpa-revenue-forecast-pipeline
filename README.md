@@ -135,6 +135,10 @@ Cada cenário mostra o impacto na margem — no pessimista, a margem chega a fic
 - **Postgres via Docker, não SQLite.** Esquema estrela em Postgres é o vocabulário técnico esperado em entrevistas de dados/FP&A.
 - **Power BI só como camada visual.** Toda a lógica de transformação e forecast vive em Python/SQL versionado.
 
+## Licença
+
+MIT — veja [LICENSE](LICENSE).
+
 ## Limitações conhecidas (fora de escopo por agora)
 
 - Sem orquestração automática (Airflow/cron) — próximo passo natural.

@@ -1,0 +1,16 @@
+# Normaliza quebras de linha: LF no repositório, conversão automática no checkout
+* text=auto eol=lf
+
+# Scripts e configs sempre LF
+*.py   text eol=lf
+*.sql  text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+*.txt  text eol=lf
+*.toml text eol=lf
+
+# Arquivos binários — nunca converter
+*.pbix binary
+*.png  binary
+*.ipynb text eol=lf
