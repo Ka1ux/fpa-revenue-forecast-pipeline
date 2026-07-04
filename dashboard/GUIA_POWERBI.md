@@ -146,6 +146,50 @@ dimensão para fatiar): **Obter dados > Texto/CSV** em `data/clean/vendas.csv` e
 - **Gráfico de linhas** — Eixo X: `data` · Eixo Y: `Margem Total` · Legenda: `cenario`.
 - **Matriz** — Linhas: `ano_mes` · Colunas: `cenario` · Valores: `Margem Total`.
 
+## Medidas DAX para as páginas 2-4
+
+As páginas 2/3 usam soma automática (basta arrastar `receita`/`valor`), e a
+página 4 reaproveita as medidas do topo deste guia. As medidas abaixo são
+**opcionais, mas recomendadas** — elas fazem o que agregação automática não faz
+(% do total, ticket médio, variação entre cenários).
+
+### Página 2 — na tabela `vendas`
+```dax
+Receita Vendas = SUM(vendas[receita])
+```
+```dax
+Qtd Vendida = SUM(vendas[quantidade])
+```
+```dax
+Ticket Medio = DIVIDE([Receita Vendas], [Qtd Vendida])
+```
+```dax
+% Receita = DIVIDE([Receita Vendas], CALCULATE([Receita Vendas], ALLSELECTED(vendas)))
+```
+
+### Página 3 — na tabela `despesas`
+```dax
+Despesa Detalhe = SUM(despesas[valor])
+```
+```dax
+% Despesa = DIVIDE([Despesa Detalhe], CALCULATE([Despesa Detalhe], ALLSELECTED(despesas)))
+```
+
+### Página 4 — na tabela `fpa_dashboard` (variação entre cenários)
+```dax
+Margem Base =
+CALCULATE(
+    [Margem Total],
+    FILTER(ALL(fpa_dashboard[cenario]), fpa_dashboard[cenario] = "base")
+)
+```
+```dax
+Margem vs Base = [Margem Total] - [Margem Base]
+```
+```dax
+Margem vs Base % = DIVIDE([Margem vs Base], [Margem Base])
+```
+
 ## Dica pra entrevista
 
 O alerta de desvio (`Alerta Desvio Margem`) é o detalhe que mostra "pensamento de negócio": não é só um gráfico bonito, é uma regra que dispara quando um cenário de risco corrói a margem além de um limite. Saber explicar essa medida vale mais que qualquer visual.
