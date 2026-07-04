@@ -2,15 +2,31 @@
 import os
 
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 
 CLEAN_DIR = "data/clean"
 DB_URL = os.environ.get("FPA_DB_URL", "postgresql://fpa:fpa@localhost:5432/fpa")
 
 
+def _limpar_fatos(engine) -> None:
+    """Esvazia as tabelas fato para a carga ser idempotente (re-rodar não duplica)."""
+    with engine.begin() as conn:
+        for tabela in ("fato_vendas", "fato_despesas"):
+            conn.execute(text(f"DELETE FROM {tabela}"))
+
+
+def _chave(frame: pd.DataFrame, cols: list[str]) -> pd.Series:
+    """Chave de comparação normalizada (datas viram 'YYYY-MM-DD' dos dois lados)."""
+    out = frame[cols].copy()
+    for c in cols:
+        parsed = pd.to_datetime(out[c], errors="coerce")
+        out[c] = parsed.dt.strftime("%Y-%m-%d") if parsed.notna().all() else out[c].astype(str)
+    return out.apply(tuple, axis=1)
+
+
 def _upsert_dim(engine, df: pd.DataFrame, table: str, cols: list[str]) -> pd.DataFrame:
     existentes = pd.read_sql(f"SELECT * FROM {table}", engine)
-    novos = df[~df[cols].apply(tuple, axis=1).isin(existentes[cols].apply(tuple, axis=1))] if len(existentes) else df
+    novos = df[~_chave(df, cols).isin(_chave(existentes, cols))] if len(existentes) else df
     if len(novos):
         novos[cols].drop_duplicates().to_sql(table, engine, if_exists="append", index=False)
     return pd.read_sql(f"SELECT * FROM {table}", engine)
@@ -77,6 +93,7 @@ def main():
     dim_cliente = carregar_dim_cliente(engine, vendas)
     dim_categoria = carregar_dim_categoria_despesa(engine, despesas)
 
+    _limpar_fatos(engine)
     carregar_fato_vendas(engine, vendas, dim_tempo, dim_produto, dim_cliente)
     carregar_fato_despesas(engine, despesas, dim_tempo, dim_categoria)
 
