@@ -27,6 +27,17 @@ def brl(v):
     return f"R$ {v:,.0f}".replace(",", ".")
 
 
+def faixa_kpis(fig, gs_row, kpis):
+    """Desenha uma faixa de cartoes de KPI usando as colunas de um gridspec."""
+    n = len(kpis)
+    for i, (titulo, valor, cor) in enumerate(kpis):
+        ax = fig.add_subplot(gs_row[i])
+        ax.axis("off")
+        ax.add_patch(plt.Rectangle((0, 0), 1, 1, transform=ax.transAxes, facecolor=cor, alpha=0.08, edgecolor=cor, lw=1.4))
+        ax.text(0.5, 0.6, valor, ha="center", va="center", fontsize=13, fontweight="bold", color=cor, transform=ax.transAxes)
+        ax.text(0.5, 0.24, titulo, ha="center", va="center", fontsize=9.5, color="#555", transform=ax.transAxes)
+
+
 def _fmt_k(ax):
     ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x/1000:.0f}k"))
 
@@ -44,16 +55,28 @@ def _barh(ax, serie, titulo):
 
 # ---------------------------------------------------------------- Página 2
 def pagina_receita_detalhe(vendas):
-    fig = plt.figure(figsize=(15, 8), facecolor="white")
-    fig.suptitle("FP&A — Receita em Detalhe", fontsize=19, fontweight="bold", y=0.98)
-    gs = fig.add_gridspec(2, 2, hspace=0.4, wspace=0.35)
+    fig = plt.figure(figsize=(15, 9), facecolor="white")
+    fig.suptitle("FP&A — Receita em Detalhe", fontsize=19, fontweight="bold", y=0.99)
+    gs = fig.add_gridspec(3, 4, height_ratios=[0.55, 1.3, 1.3], hspace=0.45, wspace=0.35)
 
-    _barh(fig.add_subplot(gs[0, 0]), vendas.groupby("produto")["receita"].sum(), "Receita por produto")
-    _barh(fig.add_subplot(gs[0, 1]), vendas.groupby("segmento")["receita"].sum(), "Receita por segmento de cliente")
-    _barh(fig.add_subplot(gs[1, 0]), vendas.groupby("regiao")["receita"].sum(), "Receita por região")
+    # faixa de KPIs
+    receita = vendas["receita"].sum()
+    top_produto = vendas.groupby("produto")["receita"].sum().idxmax()
+    top_regiao = vendas.groupby("regiao")["receita"].sum().idxmax()
+    ticket = vendas["receita"].sum() / vendas["quantidade"].sum()
+    faixa_kpis(fig, [gs[0, i] for i in range(4)], [
+        ("Receita Total", brl(receita), "#2e86de"),
+        ("Produto líder", top_produto, "#e74c3c"),
+        ("Região líder", top_regiao, "#8e44ad"),
+        ("Ticket Médio", brl(ticket), "#16a085"),
+    ])
+
+    _barh(fig.add_subplot(gs[1, :2]), vendas.groupby("produto")["receita"].sum(), "Receita por produto")
+    _barh(fig.add_subplot(gs[1, 2:]), vendas.groupby("segmento")["receita"].sum(), "Receita por segmento de cliente")
+    _barh(fig.add_subplot(gs[2, :2]), vendas.groupby("regiao")["receita"].sum(), "Receita por região")
 
     # tabela top produtos x segmento
-    ax = fig.add_subplot(gs[1, 1])
+    ax = fig.add_subplot(gs[2, 2:])
     ax.axis("off")
     ax.set_title("Receita: produto × segmento", fontsize=12, fontweight="bold", loc="left")
     piv = vendas.pivot_table(index="produto", columns="segmento", values="receita", aggfunc="sum", fill_value=0)
@@ -75,12 +98,25 @@ def pagina_receita_detalhe(vendas):
 def pagina_despesas(despesas):
     despesas = despesas.copy()
     despesas["data"] = pd.to_datetime(despesas["data"])
-    fig = plt.figure(figsize=(15, 8), facecolor="white")
-    fig.suptitle("FP&A — Despesas por Categoria", fontsize=19, fontweight="bold", y=0.98)
-    gs = fig.add_gridspec(2, 2, hspace=0.4, wspace=0.3, height_ratios=[1.3, 1])
+    fig = plt.figure(figsize=(15, 9), facecolor="white")
+    fig.suptitle("FP&A — Despesas por Categoria", fontsize=19, fontweight="bold", y=0.99)
+    gs = fig.add_gridspec(3, 4, hspace=0.45, wspace=0.3, height_ratios=[0.5, 1.3, 1])
+
+    # faixa de KPIs
+    total_desp = despesas["valor"].sum()
+    por_cat = despesas.groupby("categoria_despesa")["valor"].sum()
+    maior_cat = por_cat.idxmax()
+    pct_folha = por_cat.get("Folha", 0) / total_desp
+    media_mensal = despesas.groupby("data")["valor"].sum().mean()
+    faixa_kpis(fig, [gs[0, i] for i in range(4)], [
+        ("Despesa Total", brl(total_desp), "#e67e22"),
+        ("Maior categoria", maior_cat, "#e74c3c"),
+        ("% Folha", f"{pct_folha:.0%}", "#2e86de"),
+        ("Média mensal", brl(media_mensal), "#16a085"),
+    ])
 
     # área empilhada mensal
-    ax1 = fig.add_subplot(gs[0, :])
+    ax1 = fig.add_subplot(gs[1, :])
     piv = despesas.pivot_table(index="data", columns="categoria_despesa", values="valor", aggfunc="sum", fill_value=0)
     ax1.stackplot(piv.index, [piv[c] for c in piv.columns], labels=list(piv.columns), colors=PALETA[: len(piv.columns)], alpha=0.85)
     ax1.set_title("Despesas mensais por categoria (empilhado)", fontsize=12, fontweight="bold", loc="left")
@@ -89,10 +125,10 @@ def pagina_despesas(despesas):
     ax1.spines[["top", "right"]].set_visible(False)
 
     # total por categoria
-    _barh(fig.add_subplot(gs[1, 0]), despesas.groupby("categoria_despesa")["valor"].sum(), "Total por categoria")
+    _barh(fig.add_subplot(gs[2, :2]), despesas.groupby("categoria_despesa")["valor"].sum(), "Total por categoria")
 
     # participação (%)
-    ax3 = fig.add_subplot(gs[1, 1])
+    ax3 = fig.add_subplot(gs[2, 2:])
     total_cat = despesas.groupby("categoria_despesa")["valor"].sum()
     ax3.pie(total_cat.values, labels=total_cat.index, autopct="%1.0f%%", colors=PALETA[: len(total_cat)], textprops={"fontsize": 8})
     ax3.set_title("Participação no total de despesas", fontsize=12, fontweight="bold", loc="left")
@@ -108,12 +144,22 @@ def pagina_forecast(cenarios):
     cores = {"base": "#2e86de", "otimista": "#27ae60", "pessimista": "#e74c3c"}
     ordem = ["pessimista", "base", "otimista"]
 
-    fig = plt.figure(figsize=(15, 8), facecolor="white")
-    fig.suptitle("FP&A — Comparação de Cenários (Forecast)", fontsize=19, fontweight="bold", y=0.98)
-    gs = fig.add_gridspec(2, 2, hspace=0.4, wspace=0.3)
+    fig = plt.figure(figsize=(15, 9), facecolor="white")
+    fig.suptitle("FP&A — Comparação de Cenários (Forecast)", fontsize=19, fontweight="bold", y=0.99)
+    gs = fig.add_gridspec(3, 4, hspace=0.5, wspace=0.3, height_ratios=[0.5, 1.3, 1.1])
+
+    # faixa de KPIs (margem acumulada por cenario)
+    margem_cen = cenarios.groupby("cenario")["margem_prevista"].sum()
+    spread = margem_cen.get("otimista", 0) - margem_cen.get("pessimista", 0)
+    faixa_kpis(fig, [gs[0, i] for i in range(4)], [
+        ("Margem base", brl(margem_cen.get("base", 0)), "#2e86de"),
+        ("Margem otimista", brl(margem_cen.get("otimista", 0)), "#27ae60"),
+        ("Margem pessimista", brl(margem_cen.get("pessimista", 0)), "#e74c3c"),
+        ("Spread (otim-pess)", brl(spread), "#8e44ad"),
+    ])
 
     # receita/despesa/margem acumuladas por cenario (barras agrupadas)
-    ax1 = fig.add_subplot(gs[0, :])
+    ax1 = fig.add_subplot(gs[1, :])
     metricas = ["receita_prevista", "despesa_prevista", "margem_prevista"]
     rotulos = ["Receita", "Despesa", "Margem"]
     import numpy as np
@@ -131,7 +177,7 @@ def pagina_forecast(cenarios):
     ax1.spines[["top", "right"]].set_visible(False)
 
     # margem mês a mês por cenário (linhas)
-    ax2 = fig.add_subplot(gs[1, 0])
+    ax2 = fig.add_subplot(gs[2, :2])
     for cen in ordem:
         g = cenarios[cenarios["cenario"] == cen].sort_values("data")
         ax2.plot(g["data"], g["margem_prevista"], marker="o", ms=4, color=cores[cen], label=cen)
@@ -142,7 +188,7 @@ def pagina_forecast(cenarios):
     ax2.spines[["top", "right"]].set_visible(False)
 
     # tabela mês × cenário (margem)
-    ax3 = fig.add_subplot(gs[1, 1])
+    ax3 = fig.add_subplot(gs[2, 2:])
     ax3.axis("off")
     ax3.set_title("Margem prevista: mês × cenário", fontsize=12, fontweight="bold", loc="left")
     piv = cenarios.pivot_table(index="data", columns="cenario", values="margem_prevista", aggfunc="sum")[ordem]
