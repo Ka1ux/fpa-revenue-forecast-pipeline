@@ -119,6 +119,33 @@ Pronto. Esse é o `.pbix` do projeto — agora gerado pelo próprio Power BI (a 
 
 ---
 
+## Páginas extras (dashboard multi-página)
+
+Imagens de referência geradas dos dados reais (rode `python -m dashboard.render_pages`):
+- `dashboard/page2_receita_detalhe.png`
+- `dashboard/page3_despesas.png`
+- `dashboard/page4_forecast.png`
+
+Para as páginas 2 e 3, importe também as tabelas detalhadas (têm as colunas de
+dimensão para fatiar): **Obter dados > Texto/CSV** em `data/clean/vendas.csv` e
+`data/clean/despesas.csv`.
+
+### Página 2 — Receita em Detalhe (tabela `vendas`)
+- **Gráfico de barras** — Eixo Y: `produto` · Eixo X: soma de `receita`.
+- **Gráfico de barras** — Eixo Y: `segmento` · Eixo X: soma de `receita`.
+- **Gráfico de barras** — Eixo Y: `regiao` · Eixo X: soma de `receita`.
+- **Matriz** — Linhas: `produto` · Colunas: `segmento` · Valores: soma de `receita`.
+
+### Página 3 — Despesas por Categoria (tabela `despesas`)
+- **Gráfico de área empilhada** — Eixo X: `data` · Eixo Y: soma de `valor` · Legenda: `categoria_despesa`.
+- **Gráfico de barras** — Eixo Y: `categoria_despesa` · Eixo X: soma de `valor`.
+- **Gráfico de pizza** — Legenda: `categoria_despesa` · Valores: soma de `valor`.
+
+### Página 4 — Comparação de Cenários (tabela `fpa_dashboard`, filtro `tipo = "Previsto"`)
+- **Colunas agrupadas** — Eixo X: métrica · Legenda: `cenario` (compare receita/despesa/margem).
+- **Gráfico de linhas** — Eixo X: `data` · Eixo Y: `Margem Total` · Legenda: `cenario`.
+- **Matriz** — Linhas: `ano_mes` · Colunas: `cenario` · Valores: `Margem Total`.
+
 ## Dica pra entrevista
 
 O alerta de desvio (`Alerta Desvio Margem`) é o detalhe que mostra "pensamento de negócio": não é só um gráfico bonito, é uma regra que dispara quando um cenário de risco corrói a margem além de um limite. Saber explicar essa medida vale mais que qualquer visual.
