@@ -190,6 +190,31 @@ Margem vs Base = [Margem Total] - [Margem Base]
 Margem vs Base % = DIVIDE([Margem vs Base], [Margem Base])
 ```
 
+## KPI Positivo / Negativo (cartão colorido)
+
+Cartão que dispara Positivo/Negativo conforme a margem e reage aos filtros
+(ex: filtre o cenário pessimista e ele vira Negativo). Medidas na tabela
+`fpa_dashboard`:
+
+```dax
+Status Margem = IF([Margem Total] >= 0, "▲ Positivo", "▼ Negativo")
+```
+```dax
+Cor Status = IF([Margem Total] >= 0, "#2ECC71", "#E74C3C")
+```
+
+Passos:
+1. Visual **Cartão** com a medida `Status Margem`.
+2. **Formatação > Valor de retorno de chamada (Callout value) > Cor > fx**.
+3. **Formatar estilo: Valor do campo** → medida `Cor Status`.
+
+Verde quando positivo, vermelho quando negativo, automaticamente.
+
+Variante por tendência (crescendo/caindo em vez do sinal da margem):
+```dax
+Status Tendencia = IF([Variacao Receita MoM %] >= 0, "▲ Crescendo", "▼ Caindo")
+```
+
 ## Dica pra entrevista
 
 O alerta de desvio (`Alerta Desvio Margem`) é o detalhe que mostra "pensamento de negócio": não é só um gráfico bonito, é uma regra que dispara quando um cenário de risco corrói a margem além de um limite. Saber explicar essa medida vale mais que qualquer visual.
