@@ -78,6 +78,15 @@ Páginas e imagens de referência:
 | 3 — Despesas | [`page3_despesas.png`](dashboard/page3_despesas.png) | Evolução por categoria, participação |
 | 4 — Cenários | [`page4_forecast.png`](dashboard/page4_forecast.png) | Comparação base/otimista/pessimista |
 
+## Documentação
+
+Documentação completa em [`docs/`](docs/), organizada pelo framework Diataxis:
+
+- [Tutorial](docs/tutorial-getting-started.md) — rodar o pipeline do zero
+- [How-to: Docker/Postgres](docs/howto-run-with-docker.md) — carga completa no banco
+- [Referência](docs/reference-pipeline.md) — módulos, esquema e artefatos
+- [Explicação](docs/explanation-architecture.md) — decisões de arquitetura
+
 ## Estrutura do projeto
 
 ```
