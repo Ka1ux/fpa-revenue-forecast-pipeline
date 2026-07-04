@@ -1,14 +1,4 @@
-"""Revenue and margin forecast — base/optimistic/pessimistic scenarios.
-
-Deliberately simple: seasonal decomposition + linear trend, not a heavyweight
-ML model. The portfolio value is in explaining the method and its limitations,
-not maximizing accuracy.
-
-Limitations (documented on purpose):
-- Assumes seasonality repeats identically year over year.
-- Linear trend will not capture regime changes (e.g. a new competitor).
-- No confidence intervals — point estimates only.
-"""
+"""Forecast de receita e margem: decomposição sazonal + tendência linear, 3 cenários."""
 import os
 
 import numpy as np
@@ -41,11 +31,13 @@ def prever_proximos_meses(serie: pd.Series, n_meses: int = 6) -> pd.Series:
     decomposicao = seasonal_decompose(serie, model="additive", period=12, extrapolate_trend="freq")
     tendencia = decomposicao.trend.dropna()
 
+    # extrapola a tendência com regressão linear
     x = np.arange(len(tendencia))
     coef = np.polyfit(x, tendencia.values, 1)
     x_futuro = np.arange(len(tendencia), len(tendencia) + n_meses)
     tendencia_futura = np.polyval(coef, x_futuro)
 
+    # reaplica a média sazonal por mês
     sazonalidade_media = decomposicao.seasonal.groupby(decomposicao.seasonal.index.month).mean()
     datas_futuras = pd.date_range(serie.index[-1] + pd.DateOffset(months=1), periods=n_meses, freq="MS")
     sazonalidade_futura = [sazonalidade_media[d.month] for d in datas_futuras]

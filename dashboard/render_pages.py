@@ -1,15 +1,4 @@
-"""Renders reference images for the extra dashboard pages.
-
-Reads the real cleaned data (vendas, despesas) and the forecast to build three
-layout-reference PNGs:
-  - page 2: revenue detail (by product / segment / region)
-  - page 3: expenses by category
-  - page 4: forecast scenario comparison
-
-These mirror what to build in Power BI. For pages 2-3 in Power BI, import the
-detailed facts (data/clean/vendas.csv and data/clean/despesas.csv) directly —
-they carry every dimension column needed to slice.
-"""
+"""Gera as imagens de referência das páginas 2 (receita), 3 (despesas) e 4 (cenários)."""
 import matplotlib
 
 matplotlib.use("Agg")

@@ -41,12 +41,7 @@ def carregar_dim_categoria_despesa(engine, despesas: pd.DataFrame) -> pd.DataFra
 
 
 def _tempo_por_data(dim_tempo: pd.DataFrame) -> pd.DataFrame:
-    """Normaliza dim_tempo.data para datetime antes do merge.
-
-    O banco devolve a coluna `data` como texto (SQLite) ou date (Postgres),
-    enquanto os fatos usam datetime64. Sem coagir os dois lados, o pandas
-    recusa o merge por incompatibilidade de tipo.
-    """
+    """Coage data para datetime (o banco devolve texto/date; o merge exige tipos iguais)."""
     df = dim_tempo[["data", "data_id"]].copy()
     df["data"] = pd.to_datetime(df["data"])
     return df

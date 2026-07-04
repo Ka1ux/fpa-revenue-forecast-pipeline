@@ -1,8 +1,4 @@
-"""Renders the executive (page 1) dashboard reference image from real data.
-
-Not a Power BI file — a layout reference (PNG) built from the real data so you
-can replicate the same KPIs, visuals and arrangement in Power BI.
-"""
+"""Gera a imagem de referência da página 1 (visão executiva) a partir dos dados reais."""
 import matplotlib
 
 matplotlib.use("Agg")

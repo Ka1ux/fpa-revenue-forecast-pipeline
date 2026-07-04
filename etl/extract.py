@@ -1,10 +1,4 @@
-"""Generates simulated but realistic sales, expense, and calendar data.
-
-Real public datasets at this granularity (monthly revenue + fiscal calendar +
-scenario-ready structure) are rare and messy. A simulated base with seasonality,
-noise, and deliberate gaps serves the portfolio goal better than days spent
-cleaning an imperfect public dataset.
-"""
+"""Gera dados simulados de vendas, despesas e calendário."""
 import numpy as np
 import pandas as pd
 
@@ -47,10 +41,9 @@ def gerar_vendas(rng: np.random.Generator) -> pd.DataFrame:
     rows = []
     for data in datas:
         if data.dayofweek >= 5:
-            continue  # sem vendas em fins de semana, por simplicidade
-        # sazonalidade: pico no Q4, vale em Jan/Fev
-        sazonalidade = 1 + 0.35 * np.sin((data.month - 3) / 12 * 2 * np.pi)
-        tendencia = 1 + 0.15 * (data.year - 2022)  # crescimento anual ~15%
+            continue  # pula fins de semana
+        sazonalidade = 1 + 0.35 * np.sin((data.month - 3) / 12 * 2 * np.pi)  # pico Q4, vale Jan/Fev
+        tendencia = 1 + 0.15 * (data.year - 2022)  # crescimento ~15%/ano
         n_vendas_dia = rng.poisson(3 * sazonalidade * tendencia)
         for _ in range(n_vendas_dia):
             produto = PRODUTOS[rng.integers(0, len(PRODUTOS))]
@@ -71,7 +64,7 @@ def gerar_vendas(rng: np.random.Generator) -> pd.DataFrame:
                 }
             )
     df = pd.DataFrame(rows)
-    # gap proposital: remove uma semana de dados em julho/2023 (simula falha de ingestão real)
+    # gap proposital: simula falha de ingestão
     mask_gap = (df["data"] >= "2023-07-10") & (df["data"] <= "2023-07-16")
     return df.loc[~mask_gap].reset_index(drop=True)
 

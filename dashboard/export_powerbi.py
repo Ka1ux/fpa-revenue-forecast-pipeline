@@ -1,9 +1,4 @@
-"""Builds a single flat, dashboard-ready table for Power BI.
-
-Combines monthly actuals (revenue, expense, margin) with the three forecast
-scenarios into one tidy CSV, so Power BI import is a single step. Run after
-the ETL + forecast steps.
-"""
+"""Gera uma tabela única (realizado + cenários) pronta para o Power BI."""
 import os
 
 import pandas as pd

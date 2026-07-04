@@ -1,9 +1,4 @@
-"""Cleans raw data and runs lightweight data-quality checks.
-
-Uses custom validations instead of a heavy framework (Great Expectations) —
-enough to demonstrate quality-checking without the setup overhead a solo
-portfolio project doesn't need.
-"""
+"""Limpa os dados brutos e roda checagens de qualidade."""
 import pandas as pd
 
 RAW_DIR = "data/raw"
