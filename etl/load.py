@@ -40,8 +40,22 @@ def carregar_dim_categoria_despesa(engine, despesas: pd.DataFrame) -> pd.DataFra
     return _upsert_dim(engine, df, "dim_categoria_despesa", ["nome"])
 
 
+def _tempo_por_data(dim_tempo: pd.DataFrame) -> pd.DataFrame:
+    """Normaliza dim_tempo.data para datetime antes do merge.
+
+    O banco devolve a coluna `data` como texto (SQLite) ou date (Postgres),
+    enquanto os fatos usam datetime64. Sem coagir os dois lados, o pandas
+    recusa o merge por incompatibilidade de tipo.
+    """
+    df = dim_tempo[["data", "data_id"]].copy()
+    df["data"] = pd.to_datetime(df["data"])
+    return df
+
+
 def carregar_fato_vendas(engine, vendas: pd.DataFrame, dim_tempo, dim_produto, dim_cliente):
-    df = vendas.merge(dim_tempo[["data", "data_id"]], on="data")
+    vendas = vendas.copy()
+    vendas["data"] = pd.to_datetime(vendas["data"])
+    df = vendas.merge(_tempo_por_data(dim_tempo), on="data")
     df = df.merge(dim_produto[["nome", "produto_id"]], left_on="produto", right_on="nome")
     df = df.merge(dim_cliente[["nome", "cliente_id"]], left_on="cliente", right_on="nome", suffixes=("", "_cli"))
     df = df[["data_id", "produto_id", "cliente_id", "receita", "quantidade"]]
@@ -49,7 +63,9 @@ def carregar_fato_vendas(engine, vendas: pd.DataFrame, dim_tempo, dim_produto, d
 
 
 def carregar_fato_despesas(engine, despesas: pd.DataFrame, dim_tempo, dim_categoria):
-    df = despesas.merge(dim_tempo[["data", "data_id"]], on="data")
+    despesas = despesas.copy()
+    despesas["data"] = pd.to_datetime(despesas["data"])
+    df = despesas.merge(_tempo_por_data(dim_tempo), on="data")
     df = df.merge(dim_categoria[["nome", "categoria_id"]], left_on="categoria_despesa", right_on="nome")
     df = df[["data_id", "categoria_id", "valor"]]
     df.to_sql("fato_despesas", engine, if_exists="append", index=False)
