@@ -67,14 +67,14 @@ O arquivo pronto está em `dashboard/FP&A-PowerBI.pbix` (4 páginas). Se quiser 
 - **`dashboard/GUIA_POWERBI.md`** — passo a passo: importar dados, montar cada visual, aplicar formatação.
 - **`dashboard/TODAS_AS_MEDIDAS_DAX.md`** — as 19 medidas DAX organizadas, prontas pra colar.
 
-Páginas e imagens de referência:
+Páginas de referência:
 
-| Página | Imagem | Conteúdo |
+**| Página |Conteúdo |**
 |--------|--------|----------|
-| 1 — Visão Executiva | [`dashboard_preview.png`](dashboard/dashboard_preview.png) | KPIs, tendência, cenários, alerta |
-| 2 — Receita em Detalhe | [`page2_receita_detalhe.png`](dashboard/page2_receita_detalhe.png) | Por produto, segmento, região |
-| 3 — Despesas | [`page3_despesas.png`](dashboard/page3_despesas.png) | Evolução por categoria, participação |
-| 4 — Cenários | [`page4_forecast.png`](dashboard/page4_forecast.png) | Comparação base/otimista/pessimista |
+| 1 — Visão Executiva  | KPIs, tendência, cenários, alerta |
+| 2 — Receita em Detalhe | Por produto, segmento, região |
+| 3 — Despesas | Evolução por categoria, participação |
+| 4 — Cenários | Comparação base/otimista/pessimista |
 
 ## Documentação
 
