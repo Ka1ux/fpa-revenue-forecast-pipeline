@@ -69,12 +69,14 @@ O arquivo pronto está em `dashboard/FP&A-PowerBI.pbix` (4 páginas). Se quiser 
 
 Páginas de referência:
 
-**| Página |Conteúdo |**
+**Página /Conteúdo /**          
+1 — Visão Executiva  / KPIs, tendência, cenários, alerta 
 
-| 1 — Visão Executiva  | KPIs, tendência, cenários, alerta |
-| 2 — Receita em Detalhe | Por produto, segmento, região |
-| 3 — Despesas | Evolução por categoria, participação |
-| 4 — Cenários | Comparação base/otimista/pessimista |
+2 — Receita em Detalhe / Por produto, segmento, região 
+
+3 — Despesas / Evolução por categoria, participação 
+
+4 — Cenários / Comparação base/otimista/pessimista 
 
 ## Documentação
 
