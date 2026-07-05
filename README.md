@@ -4,8 +4,6 @@ Pipeline completo de FP&A (Financial Planning & Analysis): do ETL de vendas, des
 
 Projeto de portfólio — prioriza clareza de arquitetura, decisões documentadas e narrativa de negócio sobre robustez de produção.
 
-![Dashboard executivo](dashboard/dashboard_preview.png)
-
 ## O que este projeto faz
 
 - **Coleta** dados de vendas, despesas e calendário (simulados, realistas).
